@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'AngularMsalB2cPopup'`, () => {
+  it(`should have as title 'AngularMsalB2cRedirect'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('AngularMsalB2cPopup');
+    expect(app.title).toEqual('AngularMsalB2cRedirect');
   });
 
   it('should render title in a h1 tag', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to AngularMsalB2cPopup!');
+    expect(compiled.querySelector('h1').textContent).toContain('Welcome to AngularMsalB2cRedirect!');
   });
 });
