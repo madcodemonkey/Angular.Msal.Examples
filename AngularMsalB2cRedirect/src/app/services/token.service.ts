@@ -34,8 +34,8 @@ export class TokenService {
     return result;
   }
 
-  public saveAccessToken(accessToken: any): void {
-    localStorage.setItem(this.LocalStorageKey, accessToken.accessToken);
+  public saveAccessToken(accessToken: string): void {
+    localStorage.setItem(this.LocalStorageKey, accessToken);
   }
 
   public removeAccessToken(): void {

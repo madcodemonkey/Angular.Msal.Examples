@@ -12,8 +12,9 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthSecurityService, private router: Router) { }
 
   ngOnInit() {
-    if (this.authService.isLoginInProgress() === false &&
-       this.authService.isAuthenticated() === false) {
+    this.authService.user.subscribe((user) => {if (user.email) { this.router.navigate(['/welcome']); }});
+
+    if (this.authService.isAuthenticated() === false) {
       this.authService.login();
     } else {
       this.router.navigate(['/welcome']);
