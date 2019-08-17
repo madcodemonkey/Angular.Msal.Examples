@@ -7,12 +7,14 @@ import { LoginComponent } from './components/login/login.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from './services/token.service';
+import { SimpsonsComponent } from './components/simpsons/simpsons.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    SimpsonsComponent
   ],
   imports: [
     BrowserModule,

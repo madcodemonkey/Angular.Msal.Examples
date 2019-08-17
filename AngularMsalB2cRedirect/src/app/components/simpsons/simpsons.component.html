@@ -1,0 +1,13 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>Welcome {{this.user.showName()}}!</h1>
+  <p>You are now logged in!</p>
+  <img width="300" alt="Bart" src="assets/images/Bart.png">
+</div>
+<div style="text-align:center">
+  <a href="#" [routerLink]="['/welcome']">Welcome</a>
+</div>
+<br />
+<div style="text-align:center">
+  <button class="btn btn-primary" (click)="logout()">Logout</button>
+</div>
