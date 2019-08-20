@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthSecurityService } from 'src/app/services/auth-service.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,14 +9,15 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private authService: AuthSecurityService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
-    if (this.authService.isLoginInProgress() === false &&
-       this.authService.isAuthenticated() === false) {
+    this.authService.user.subscribe((user) => {
+      if (user.email) { this.router.navigate(['/welcome']);
+    }});
+
+    if (this.authService.isAuthenticated() === false) {
       this.authService.login();
-    } else {
-      this.router.navigate(['/welcome']);
     }
   }
 }
