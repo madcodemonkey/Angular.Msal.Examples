@@ -94,7 +94,7 @@ export class AuthService {
       // User is already logged in ...attempt silent token acquisition
       this.getTokenSilently();
     } else {
-      // user is not logged in, you will need to log them in to acquire a token
+      // User is not logged in, you will need to log them in to acquire a token
       this.getTokenViaLoginRedirect();
     }
   }
@@ -126,7 +126,7 @@ export class AuthService {
     if (error) {
       console.log('Auth: redirectCallback called with error.', error);
     } else {
-      if (response.accessToken){
+      if (response.accessToken) {
         console.log('Auth: redirectCallback called with response AND an access token.', response);
       } else {
         console.log('Auth: redirectCallback called with response WITHOUT an access token.', response);
