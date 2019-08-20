@@ -2,12 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './components/AppComponent/app.component';
+import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
-import { JwtModule } from '@auth0/angular-jwt';
-import { tokenGetter } from './services/token.service';
 import { SimpsonsComponent } from './components/simpsons/simpsons.component';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
   declarations: [
@@ -19,15 +18,8 @@ import { SimpsonsComponent } from './components/simpsons/simpsons.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    JwtModule.forRoot({
-      config: {
-        tokenGetter: tokenGetter,
-        whitelistedDomains: ['localhost:5000'],
-        blacklistedRoutes: ['localhost:5000/api/auth']
-      }
-    })
+    CoreModule
   ],
-  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

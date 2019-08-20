@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
-import { AuthSecurityService } from 'src/app/services/auth-service.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-simpsons',
@@ -8,9 +8,9 @@ import { AuthSecurityService } from 'src/app/services/auth-service.service';
   styleUrls: ['./simpsons.component.css']
 })
 export class SimpsonsComponent implements OnInit {
-  user: AuthUser = new AuthUser(null);
+  user: AuthUser = new AuthUser();
 
-  constructor(private authSevice: AuthSecurityService) {
+  constructor(private authSevice: AuthService) {
   }
 
   ngOnInit() {

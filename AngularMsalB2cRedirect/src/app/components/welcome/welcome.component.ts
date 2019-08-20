@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthSecurityService } from 'src/app/services/auth-service.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { AuthUser } from 'src/app/models/auth-user';
 
 @Component({
@@ -8,8 +8,8 @@ import { AuthUser } from 'src/app/models/auth-user';
   styleUrls: ['./welcome.component.css']
 })
 export class WelcomeComponent implements OnInit {
-  user: AuthUser = new AuthUser(null);
-  constructor(private authSevice: AuthSecurityService) { }
+  user: AuthUser = new AuthUser();
+  constructor(private authSevice: AuthService) { }
 
   ngOnInit() {
     this.authSevice.user.subscribe((user) => this.user = user);
@@ -17,5 +17,10 @@ export class WelcomeComponent implements OnInit {
 
   logout() {
      this.authSevice.logout();
+  }
+
+  logUserInfo() {
+   const user = this.authSevice.getUser();
+   console.log(user);
   }
 }
