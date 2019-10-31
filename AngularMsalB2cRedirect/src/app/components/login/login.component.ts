@@ -12,12 +12,13 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
-    this.authService.user.subscribe((user) => {
-      if (user.email) { this.router.navigate(['/welcome']);
-    }});
-
-    if (this.authService.isAuthenticated() === false) {
+    if (this.authService.hasTokenExpired()) {
       this.authService.login();
+    } else if (this.authService.isHandlingRedirectAfterLogin()) {
+      // If this is the origin/start page, you will be stuck here if
+      // we don't navigate you away from the page.  In other words, msal.js thinks the
+      // login page is where you started from so it routed you back to here.
+      this.router.navigate(['/welcome']);
     }
   }
 }

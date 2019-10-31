@@ -8,13 +8,15 @@ import { LoginComponent } from './components/login/login.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { SimpsonsComponent } from './components/simpsons/simpsons.component';
 import { CoreModule } from './core/core.module';
+import { LogoutComponent } from './components/logout/logout.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     WelcomeComponent,
-    SimpsonsComponent
+    SimpsonsComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,

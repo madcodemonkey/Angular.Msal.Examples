@@ -8,7 +8,7 @@ import { AuthUser } from 'src/app/models/auth-user';
   styleUrls: ['./welcome.component.css']
 })
 export class WelcomeComponent implements OnInit {
-  user: AuthUser = new AuthUser();
+  user: AuthUser = new AuthUser(null);
   constructor(private authSevice: AuthService) { }
 
   ngOnInit() {
@@ -16,11 +16,11 @@ export class WelcomeComponent implements OnInit {
   }
 
   logout() {
-     this.authSevice.logout();
+    this.authSevice.logout();
   }
 
   logUserInfo() {
-   const user = this.authSevice.getUser();
-   console.log(user);
+    const user = this.authSevice.getUser();
+    console.log(user);
   }
 }

@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
   styleUrls: ['./simpsons.component.css']
 })
 export class SimpsonsComponent implements OnInit {
-  user: AuthUser = new AuthUser();
+  user: AuthUser = new AuthUser(null);
 
   constructor(private authSevice: AuthService) {
   }
