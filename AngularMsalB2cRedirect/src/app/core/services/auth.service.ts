@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { AuthUser } from 'src/app/models/auth-user';
 import { Router } from '@angular/router';
 import { MsalRedirectHelperService } from './msal-redirect-helper.service';
@@ -8,14 +7,7 @@ import { MsalRedirectHelperService } from './msal-redirect-helper.service';
   providedIn: 'root'
 })
 export class AuthService {
-  private userChangeSubject = new BehaviorSubject(new AuthUser(null));
-  public user = this.userChangeSubject.asObservable();
-
   constructor(private router: Router, private msalHelper: MsalRedirectHelperService) {
-    this.msalHelper.clientApplication.handleRedirectCallback(this.redirectCallback.bind(this));
-    if (this.hasTokenExpired() === false) {
-      this.userChangeSubject.next(this.getUser());
-    }
   }
 
   public logout(): void {
@@ -34,7 +26,6 @@ export class AuthService {
 
   public getUser(): AuthUser {
     const claims: any = this.msalHelper.getClaims();
-    console.log(claims);
     return new AuthUser(claims);
   }
 
@@ -64,6 +55,7 @@ export class AuthService {
       this.getAccessTokenSilently();
     } else {
       // user is not logged in, you will need to log them in to acquire a token
+      // This avoids an unnecessary call to acquireTokenSilent
       this.msalHelper.loginRedirect();
     }
   }
@@ -73,7 +65,6 @@ export class AuthService {
     this.msalHelper.acquireTokenSilent()
       .then(response => {
         console.log('Auth:  Silently login promise returns', response);
-        this.userChangeSubject.next(this.getUser());
       })
       .catch(err => {
         // could also check if err instance of InteractionRequiredAuthError if you can import the class.
@@ -82,17 +73,5 @@ export class AuthService {
           this.msalHelper.acquireTokenRedirect();
         }
       });
-  }
-
-  // Not called if Msal.Configuration  navigateToLoginRequestUrl is set to false!
-  private redirectCallback(error: any, response: any) {
-    // Usage: https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/MSAL.js-1.0.0-api-release#configuration-of-msaljs
-    if (error) {
-      console.log('Auth: redirectCallback -- error', error);
-      this.router.navigate(['/logout', error.errorMessage]);
-    } else {
-      console.log('Auth: redirectCallback -- reponse', response);
-      this.router.navigate(['/']);
-    }
   }
 }

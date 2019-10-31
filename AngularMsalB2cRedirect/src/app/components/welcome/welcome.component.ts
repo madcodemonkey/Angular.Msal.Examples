@@ -12,7 +12,7 @@ export class WelcomeComponent implements OnInit {
   constructor(private authSevice: AuthService) { }
 
   ngOnInit() {
-    this.authSevice.user.subscribe((user) => this.user = user);
+    this.user = this.authSevice.getUser();
   }
 
   logout() {
@@ -20,7 +20,6 @@ export class WelcomeComponent implements OnInit {
   }
 
   logUserInfo() {
-    const user = this.authSevice.getUser();
-    console.log(user);
+    console.log(this.user);
   }
 }

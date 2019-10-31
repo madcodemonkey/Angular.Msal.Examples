@@ -14,8 +14,9 @@ export class SimpsonsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.authSevice.user.subscribe((user) => this.user = user);
+    this.user = this.authSevice.getUser();
   }
+
 
   logout() {
     this.authSevice.logout();
