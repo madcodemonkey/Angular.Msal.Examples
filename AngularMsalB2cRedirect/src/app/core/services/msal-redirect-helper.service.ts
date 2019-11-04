@@ -36,6 +36,7 @@ export class MsalRedirectHelperService {
   public clientApplication = new Msal.UserAgentApplication(this.msalConfig);
 
   constructor(private router: Router) {
+    // The redirectCallback funciton is ONLY used if Msal.Configuration's navigateToLoginRequestUrl is false!
     this.clientApplication.handleRedirectCallback(this.redirectCallback.bind(this));
   }
 

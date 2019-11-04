@@ -12,15 +12,12 @@
 
 ## General Notes
 - You must first use a login method and THEN use an acquire method to obtain the token.
-- Redirect vs Popup (The MSAL.js library violates the integration segregation principle)  
-   - Redirect
-      - If you use the **loginRedirect** method, you then use the **acquireTokenSilent** method and if that fails you fall back to the  **acquireTokenRedirect**
-      - Since the redirect method navigates you away from the web site, it has a callback that you can assign on the Msal.UserAgentApplicaiton (see the handleRedirectCallback method).  You can use this method to navigate the user back to the route they originally tried to access (assuming you stored it before in localstorage before navigating them away).   Example of setting it:    this.clientApplication.handleRedirectCallback(this.redirectCallback.bind(this));
-     - Is this only a redirect issue? If you call the **loginRedirect** method and have NOT set redirectUri in your Msal.Configuration, the redirectUri will be set to whatever the URI in the address bar is currently set to.  If that URI is not registered in your B2C application in the Azure portal, you will receive an error.  You can handle this in two ways:
-       1. Have your Angular route guards route the user to a URL that is registered
-       1. set redirectUri in the Msal.Configuration
-   - Popup
-      - If you use the **loginPopup** method, you then use the **acquireTokenSilent** method and if that fails you fall back to the  **acquireTokenPopup**
+- The MSAL.js library violates the integration segregation principle by mixing both the redirect and popup methods into a single interface/object, which creates confusion about which method to use.  I try to clarify that below.  
+
+## Redirect notes
+The general idea is that your user is redirected to the B2C web site to do login. On the B2C site they are given different identity provider (IdP) choices and routed to the one of their choice. Once authenticated with the IdP, they are routed back to the B2C web site and then back to a redirect uri and an access token is available.
+- If you use the **loginRedirect** method, you are ONLY logging in.  You must use the **acquireTokenSilent** method and if that fails you fall back to the **acquireTokenRedirect** to acquire an access token.
+- Since the redirect method navigates you away from the web site, it has a callback that you can assign on the Msal.UserAgentApplicaiton (see the handleRedirectCallback method).  You can use this method to navigate the user back to the route they originally tried to access (assuming you stored it before in localstorage before navigating them away).   Example of setting it:    this.clientApplication.handleRedirectCallback(this.redirectCallback.bind(this));
 
 ## Configuration Notes
 Msal.js has a configuration object and [Microsoft has define the properties on it here](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications); however, I've added addition comment bullets below which start with 'Yates:' and are bolded and italicized.
@@ -65,10 +62,11 @@ validateAuthority: Optional. Validate the issuer of tokens. Default is true. For
    - **_Yates: This must be a fully qualified URL, so no null, undefined or blanks here.  You just do NOT define it if you not specifying a value!_**
 - **navigateToLoginRequestUrl**: Optional. Ability to turn off default navigation to start page after login. Default is true. This is used only for redirect flows.  
    - **_Yates: If true, it appears to only navigate you back to the root domain path (so if you came from https://contso.com/LoveThisPage, despite what the name implies you will be routed back to https://contso.com/ (I believe this is a bug)_**
+   - **_Yates: If true and your using redirect login style, the function you pass to the Msal.UserAgentApplication handleRedirectCallback method is NOT called!_**
    - **_Yates: If false, you are sent to redirectUri (see its default above) and if that page is NOT listed in their redirect URLs in the B2C portal, you WILL receive an error._**
 - **cacheLocation**: Optional. Sets browser storage to either localStorage or sessionStorage. The default is sessionStorage.
    - **_Yates: The problem with the default, sessionStorage, is that if the user is popped out into a new tab for any reason they will NOT have access to the access token anymore!_**
-- storeAuthStateInCookie: Optional. This flag was introduced in MSAL.js v0.2.2 as a fix for the authentication loop issues on Microsoft Internet Explorer and Microsoft Edge. Enable the flag storeAuthStateInCookie to true to take advantage of this fix. When this is enabled, MSAL.js will store the auth request state required for validation of the auth flows in the browser cookies. By default this flag is set to false.
+- **storeAuthStateInCookie**: Optional. This flag was introduced in MSAL.js v0.2.2 as a fix for the authentication loop issues on Microsoft Internet Explorer and Microsoft Edge. Enable the flag storeAuthStateInCookie to true to take advantage of this fix. When this is enabled, MSAL.js will store the auth request state required for validation of the auth flows in the browser cookies. By default this flag is set to false.
 - **logger**: Optional. A Logger object with a callback instance that can be provided by the developer to consume and publish logs in a custom manner. For details on passing logger object, see logging with msal.js.
 - **loadFrameTimeout**: Optional. The number of milliseconds of inactivity before a token renewal response from Azure AD should be considered timed out. Default is 6 seconds.
 - **tokenRenewalOffsetSeconds**: Optional. The number of milliseconds which sets the window of offset needed to renew the token before expiry. Default is 300 milliseconds.
