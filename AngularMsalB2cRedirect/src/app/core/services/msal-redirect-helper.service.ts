@@ -135,7 +135,8 @@ export class MsalRedirectHelperService {
     }
   }
 
-  // Used to retrieve the last route when redirectCallback will be called.
+  // Unfortunately, MSAL.js routing doesn't work the way you would expect (routing you back to the page you started on) so,
+  // this function is used to retrieve the last route when redirectCallback will be called.
   private getLastRoute(): string {
     if (localStorage.hasOwnProperty(this.lastRouteStorageKey)) {
       const lastRoute: string = localStorage.getItem(this.lastRouteStorageKey);
@@ -145,7 +146,7 @@ export class MsalRedirectHelperService {
     return null;
   }
 
-  // Redirects the user back to where the started.
+  // Redirects the user back to where they started.
   // This is called only if Msal.Configuration's navigateToLoginRequestUrl is false!
   private redirectCallback(error: any, response: any) {
     // Usage: https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/MSAL.js-1.0.0-api-release#configuration-of-msaljs
@@ -162,6 +163,4 @@ export class MsalRedirectHelperService {
       }
     }
   }
-
-
 }
