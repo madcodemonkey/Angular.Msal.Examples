@@ -8,19 +8,18 @@ import { AuthUser } from 'src/app/models/auth-user';
   styleUrls: ['./welcome.component.css']
 })
 export class WelcomeComponent implements OnInit {
-  user: AuthUser = new AuthUser();
+  user: AuthUser = new AuthUser(null);
   constructor(private authSevice: AuthService) { }
 
   ngOnInit() {
-    this.authSevice.user.subscribe((user) => this.user = user);
+    this.user = this.authSevice.getUser();
   }
 
   logout() {
-     this.authSevice.logout();
+    this.authSevice.logout();
   }
 
   logUserInfo() {
-   const user = this.authSevice.getUser();
-   console.log(user);
+    console.log(this.user);
   }
 }

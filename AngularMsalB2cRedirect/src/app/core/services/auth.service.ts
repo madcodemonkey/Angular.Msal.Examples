@@ -42,15 +42,6 @@ export class AuthService {
   }
 
   /**
-   * Logs the user out and clears access token data from local storage.
-   */
-  public logout(): void {
-    console.log('Auth: logout called');
-    this.clientApplication.logout();
-    localStorage.removeItem(this.lastRouteStorageKey);
-  }
-
-  /**
    * Pulls the access token (JWT) from local storage
    */
   public getAccessToken(): string {
@@ -83,6 +74,14 @@ export class AuthService {
   }
 
   /**
+   * Pulls user information from access tokens claims.
+   */
+  public getUser(): AuthUser {
+    const claims: any = this.getClaims();
+    return new AuthUser(claims);
+  }
+
+  /**
    * Indicates if the token has expired.
    */
   public hasTokenExpired(): boolean {
@@ -106,14 +105,6 @@ export class AuthService {
   }
 
   /**
-   * Pulls user information from access tokens claims.
-   */
-  public getUser(): AuthUser {
-    const claims: any = this.getClaims();
-    return new AuthUser(claims);
-  }
-
-  /**
    * Used to login either silently or via redirect based on the status of the access token in local storage.
    * See documention: https://github.com/AzureAD/microsoft-authentication-library-for-js
    * See example of improvements with new MSAL library: https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/MSAL.js-1.0.0-api-release#signing-in-and-getting-tokens-with-msaljs
@@ -134,20 +125,12 @@ export class AuthService {
   }
 
   /**
-   * Used to acquire an access token silently and if that fails to acquire a token via a redirect.
+   * Logs the user out and clears access token data from local storage.
    */
-  private getAccessTokenSilently() {
-    this.acquireTokenSilent()
-      .then(response => {
-        console.log('Auth:  Silently login promise returns', response);
-      })
-      .catch(err => {
-        // could also check if err instance of InteractionRequiredAuthError if you can import the class.
-        if (err.name === 'InteractionRequiredAuthError') {
-          console.log('Auth:  Silent login failed, so acquire token with redirect');
-          this.acquireTokenRedirect();
-        }
-      });
+  public logout(): void {
+    console.log('Auth: logout called');
+    this.clientApplication.logout();
+    localStorage.removeItem(this.lastRouteStorageKey);
   }
 
   /**
@@ -172,11 +155,42 @@ export class AuthService {
   }
 
   /**
+   * Used to acquire an access token silently and if that fails to acquire a token via a redirect.
+   */
+  private getAccessTokenSilently() {
+    this.acquireTokenSilent()
+      .then(response => {
+        console.log('Auth:  Silently login promise returns', response);
+      })
+      .catch(err => {
+        // could also check if err instance of InteractionRequiredAuthError if you can import the class.
+        if (err.name === 'InteractionRequiredAuthError') {
+          console.log('Auth:  Silent login failed, so acquire token with redirect');
+          this.acquireTokenRedirect();
+        }
+      });
+  }
+
+  /**
    * Gets the claim saved by the Msal.js library.
    */
   private getClaims(): StringDict {
     const account: Msal.Account = this.clientApplication.getAccount();
     return account !== null ? account.idTokenClaims : {};
+  }
+
+  /**
+   * Unfortunately, MSAL.js routing doesn't work the way you would expect (routing you back to the page
+   * you started on) so, this function is used to retrieve the last route when redirectCallback will be called.
+   * See also setLastRoute
+   */
+  private getLastRoute(): string {
+    if (localStorage.hasOwnProperty(this.lastRouteStorageKey)) {
+      const lastRoute: string = localStorage.getItem(this.lastRouteStorageKey);
+      return lastRoute;
+    }
+
+    return null;
   }
 
   /**
@@ -197,20 +211,6 @@ export class AuthService {
     const tokenRequest: Msal.AuthenticationParameters = { scopes: environment.securityScopes };
     this.setLastRoute();
     this.clientApplication.loginRedirect(tokenRequest);
-  }
-
-  /**
-   * Unfortunately, MSAL.js routing doesn't work the way you would expect (routing you back to the page
-   * you started on) so, this function is used to retrieve the last route when redirectCallback will be called.
-   * See also setLastRoute
-   */
-  private getLastRoute(): string {
-    if (localStorage.hasOwnProperty(this.lastRouteStorageKey)) {
-      const lastRoute: string = localStorage.getItem(this.lastRouteStorageKey);
-      return lastRoute;
-    }
-
-    return null;
   }
 
   /**
@@ -253,5 +253,4 @@ export class AuthService {
       }
     }
   }
-
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { Router } from '@angular/router';
+import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service';
 
 @Component({
   selector: 'app-login',
@@ -9,15 +9,16 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private redirectService: AuthRedirectService) { }
 
   ngOnInit() {
-    this.authService.user.subscribe((user) => {
-      if (user.email) { this.router.navigate(['/welcome']);
-    }});
-
-    if (this.authService.isAuthenticated() === false) {
+    if (this.authService.hasTokenExpired()) {
       this.authService.login();
+    } else {
+      // If this is the origin/start page, you will be stuck here if
+      // we don't navigate you away from the page.  In other words, msal.js thinks the
+      // login page is where you started from so it routed you back to here.
+      this.redirectService.navigateToSavedRoute();
     }
   }
 }

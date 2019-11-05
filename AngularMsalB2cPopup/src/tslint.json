@@ -15,7 +15,7 @@
     ],
     "max-line-length": [
       true,
-      200
+      250
     ]
   }
 }
