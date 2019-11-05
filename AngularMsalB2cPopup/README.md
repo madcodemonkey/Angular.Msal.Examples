@@ -1,4 +1,4 @@
-# Notes on Angular Msal.js B2C Redirect Example
+# Notes on Angular Msal.js B2C Popup Example
 
 ## Reconfigure to use your own B2C tenant
 1. Azure portal
