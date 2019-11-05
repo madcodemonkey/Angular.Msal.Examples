@@ -4,6 +4,7 @@ import * as Msal from 'msal';
 import { environment } from 'src/environments/environment';
 import { StringDict } from 'msal/lib-commonjs/MsalTypes';
 import { Router } from '@angular/router';
+import { AuthRedirectService } from './auth-redirect.service';
 
 // MSDN: https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-overview
 // Read: https://www.npmjs.com/package/msal
@@ -14,7 +15,6 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private localStorageKey = 'msal.idtoken';
-  private lastRouteStorageKey = 'yates.authRoute';
 
   // configuration to initialize msal
   // Note 1: validateAuthority must be false for newer b2clogin.com authority endpoint see https://docs.microsoft.com/en-us/azure/active-directory-b2c/b2clogin
@@ -36,8 +36,9 @@ export class AuthService {
 
   private clientApplication = new Msal.UserAgentApplication(this.msalConfig);
 
-  constructor(private router: Router) {
-    // The redirectCallback funciton is ONLY used if Msal.Configuration's navigateToLoginRequestUrl is false!
+  constructor(private router: Router, private redirectService: AuthRedirectService) {
+    this.redirectService.addIgnoreRoutes(['/login', '/logout']);
+    // The redirectCallback function is ONLY used if Msal.Configuration's navigateToLoginRequestUrl is false!
     this.clientApplication.handleRedirectCallback(this.redirectCallback.bind(this));
   }
 
@@ -130,7 +131,7 @@ export class AuthService {
   public logout(): void {
     console.log('Auth: logout called');
     this.clientApplication.logout();
-    localStorage.removeItem(this.lastRouteStorageKey);
+    this.redirectService.clearSavedRoute();
   }
 
   /**
@@ -150,7 +151,7 @@ export class AuthService {
   private acquireTokenRedirect() {
     console.log('Auth:  Silent renewal failed so use acquireTokenRedirect!');
     const tokenRequest: Msal.AuthenticationParameters = { scopes: environment.securityScopes };
-    this.setLastRoute();
+    this.redirectService.saveCurrentRoute();
     this.clientApplication.acquireTokenRedirect(tokenRequest);
   }
 
@@ -180,20 +181,6 @@ export class AuthService {
   }
 
   /**
-   * Unfortunately, MSAL.js routing doesn't work the way you would expect (routing you back to the page
-   * you started on) so, this function is used to retrieve the last route when redirectCallback will be called.
-   * See also setLastRoute
-   */
-  private getLastRoute(): string {
-    if (localStorage.hasOwnProperty(this.lastRouteStorageKey)) {
-      const lastRoute: string = localStorage.getItem(this.lastRouteStorageKey);
-      return lastRoute;
-    }
-
-    return null;
-  }
-
-  /**
    * Very basic validation of a JWT token
    * @param token - A JWT represented as a string.  Should have three parts each seperated by periods.
    */
@@ -209,7 +196,7 @@ export class AuthService {
   private loginRedirect() {
     console.log('Auth:  Get token via login redirect');
     const tokenRequest: Msal.AuthenticationParameters = { scopes: environment.securityScopes };
-    this.setLastRoute();
+    this.redirectService.saveCurrentRoute();
     this.clientApplication.loginRedirect(tokenRequest);
   }
 
@@ -223,34 +210,8 @@ export class AuthService {
       console.log('Auth: redirectCallback -- error', error);
       this.router.navigate(['/logout', error.errorMessage]);
     } else {
-      const lastRoute: string = this.getLastRoute();
-      console.log('Auth: redirectCallback -- reponse', response, 'last route', lastRoute);
-      if (lastRoute) {
-        this.router.navigateByUrl(lastRoute);
-      } else {
-        this.router.navigate(['/']);
-      }
-    }
-  }
-
-  /**
-   * Unfortunately, MSAL.js routing doesn't work the way you would expect (routing you back to the page
-   * you started on) so, this function is used to save the last route when redirectCallback will be called.
-   * See also getLastRoute
-   */
-  private setLastRoute(): void {
-    // redirectCallback is only used if  Msal.Configuration's navigateToLoginRequestUrl is false!
-    if (this.msalConfig.auth.navigateToLoginRequestUrl === false) {
-      // Not using this.router.url because route guards stop you from getting the proper url!
-      const lastRoute = window.location.pathname + window.location.search;
-
-      // We don't want to send the user to the login or logout screens.
-      if (window.location.href === this.msalConfig.auth.redirectUri ||
-        window.location.href === this.msalConfig.auth.postLogoutRedirectUri) {
-        localStorage.removeItem(this.lastRouteStorageKey);
-      } else {
-        localStorage.setItem(this.lastRouteStorageKey, lastRoute);
-      }
+      console.log('Auth: redirectCallback -- reponse', response);
+      this.redirectService.navigateToSavedRoute(false);
     }
   }
 }

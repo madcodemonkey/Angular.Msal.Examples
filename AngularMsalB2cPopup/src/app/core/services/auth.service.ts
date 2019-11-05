@@ -15,7 +15,6 @@ import { AuthRedirectService } from './auth-redirect.service';
 })
 export class AuthService {
   private localStorageKey = 'msal.idtoken';
-  private lastRouteStorageKey = 'yates.authRoute';
   private reloadNeeded = false;
 
   // configuration to initialize msal
@@ -123,7 +122,7 @@ export class AuthService {
   public logout(): void {
     console.log('Auth: logout called');
     this.clientApplication.logout();
-    localStorage.removeItem(this.lastRouteStorageKey);
+    this.redirectService.clearSavedRoute();
   }
 
   /**

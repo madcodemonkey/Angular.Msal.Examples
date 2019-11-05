@@ -16,7 +16,10 @@ export class LogoutComponent implements OnInit {
       this.authService.logout();
     }
 
-    this.route.params.subscribe(params => this.errorMessage = params['errorMessage']);
+    this.route.queryParams.subscribe(params => {
+      console.log(params);
+      this.errorMessage = params['errorMessage'];
+    });
   }
 
   loginClick() {
