@@ -58,7 +58,7 @@ describe('AuthRedirectService', () => {
 
     // Assert
     expect(service.getPartialPath).toHaveBeenCalled();
-    expect(service.getSavedRoute()).toEqual('/', 'The login route should have been ignored!');
+    expect(service.getSavedRoute(true)).toEqual('/', 'The login route should have been ignored!');
   });
 
   it('should find a good route', () => {
@@ -72,7 +72,7 @@ describe('AuthRedirectService', () => {
 
     // Assert
     expect(service.getPartialPath).toHaveBeenCalled();
-    expect(service.getSavedRoute()).toEqual('/user', '/user is a valid route that is not being ignored!');
+    expect(service.getSavedRoute(true)).toEqual('/user', '/user is a valid route that is not being ignored!');
   });
 
 

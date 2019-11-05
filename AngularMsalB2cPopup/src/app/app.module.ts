@@ -4,7 +4,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { SimpsonsComponent } from './components/simpsons/simpsons.component';
 import { CoreModule } from './core/core.module';
@@ -13,7 +12,6 @@ import { LogoutComponent } from './components/logout/logout.component';
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,
     WelcomeComponent,
     SimpsonsComponent,
     LogoutComponent

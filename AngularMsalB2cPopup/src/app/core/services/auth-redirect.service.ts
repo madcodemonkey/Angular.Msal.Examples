@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthRedirectService {
-  private lastRouteStorageKey = 'yates.authRedirect';
+  private lastRouteWithQueryStringStorageKey = 'authRedirect.lastRouteWithQueryString';
+  private lastRouteWithoutQueryStringStorageKey = 'authRedirect.lastRouteWithoutQueryString';
   private ignoredRoutes: string[] = [];
 
   constructor(private router: Router) {
@@ -35,7 +36,8 @@ export class AuthRedirectService {
    * Clears a saved route local storage
    */
   public clearSavedRoute() {
-    localStorage.removeItem(this.lastRouteStorageKey);
+    localStorage.removeItem(this.lastRouteWithQueryStringStorageKey);
+    localStorage.removeItem(this.lastRouteWithoutQueryStringStorageKey);
   }
 
   /**
@@ -53,10 +55,13 @@ export class AuthRedirectService {
   /**
    * Gets the saved route from local storage or returns '/' if it is not round.
    */
-  public getSavedRoute(): string {
-    if (localStorage.hasOwnProperty(this.lastRouteStorageKey)) {
-      const lastRoute: string = localStorage.getItem(this.lastRouteStorageKey);
-      return lastRoute;
+  public getSavedRoute(includeQueryString: boolean): string {
+    const storageKey = includeQueryString ? this.lastRouteWithQueryStringStorageKey : this.lastRouteWithoutQueryStringStorageKey;
+    if (localStorage.hasOwnProperty(storageKey)) {
+      const lastRoute: string = localStorage.getItem(storageKey);
+      if (lastRoute && lastRoute.length > 1) {
+        return lastRoute;
+      }
     }
 
     return '/';
@@ -82,10 +87,18 @@ export class AuthRedirectService {
   /**
    * Navigates to the route saved by the saveCurrentRoute function.
    */
-  public navigateToSavedRoute() {
-    const lastRoute: string = this.getSavedRoute();
-    if (lastRoute && lastRoute.length > 1) {
-      this.router.navigateByUrl(lastRoute);
+  public navigateToSavedRoute(reloadAllowed: boolean) {
+    const lastRouteWithQueryString: string = this.getSavedRoute(true);
+    if (reloadAllowed) {
+      const lastRouteWithoutQueryString: string = this.getSavedRoute(false);
+      const currentRouteWihtoutQueryString = this.getPartialPath(false);
+      if (lastRouteWithoutQueryString === currentRouteWihtoutQueryString) {
+        window.location.reload();
+      }
+    }
+
+    if (lastRouteWithQueryString !== '/') {
+      this.router.navigateByUrl(lastRouteWithQueryString);
     } else {
       this.router.navigate(['/']);
     }
@@ -101,7 +114,8 @@ export class AuthRedirectService {
     if (this.isIgnoredRoute(this.getPartialPath(false))) {
       this.clearSavedRoute();
     } else {
-      localStorage.setItem(this.lastRouteStorageKey, lastRoute);
+      localStorage.setItem(this.lastRouteWithQueryStringStorageKey, lastRoute);
+      localStorage.setItem(this.lastRouteWithoutQueryStringStorageKey, this.getPartialPath(false));
     }
   }
 }

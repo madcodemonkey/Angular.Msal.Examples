@@ -4,6 +4,7 @@ import * as Msal from 'msal';
 import { environment } from 'src/environments/environment';
 import { StringDict } from 'msal/lib-commonjs/MsalTypes';
 import { Router } from '@angular/router';
+import { AuthRedirectService } from './auth-redirect.service';
 
 // MSDN: https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-overview
 // Read: https://www.npmjs.com/package/msal
@@ -37,7 +38,8 @@ export class AuthService {
 
   private clientApplication = new Msal.UserAgentApplication(this.msalConfig);
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private redirectService: AuthRedirectService) {
+    redirectService.addIgnoreRoutes(['/logout']);
   }
 
   /**
@@ -145,12 +147,7 @@ export class AuthService {
       .then(response => {
         // get access token from response
         // response.accessToken
-        // Navigate to login page which will redirect back to saved route.
-        if (this.reloadNeeded) {
-          this.reloadNeeded = false;
-          window.location.reload();
-          // this.router.navigate(['/login']);
-        }
+        this.reloadIfNecessary();
       })
       .catch(err => {
         // handle error
@@ -164,11 +161,7 @@ export class AuthService {
     this.acquireAccessTokenSilent()
       .then(response => {
         console.log('Auth:  Silently login promise returns', response);
-        if (this.reloadNeeded) {
-          this.reloadNeeded = false;
-          window.location.reload();
-          // this.router.navigate(['/login']);
-        }
+        this.reloadIfNecessary();
       })
       .catch(err => {
         // could also check if err instance of InteractionRequiredAuthError if you can import the class.
@@ -202,7 +195,8 @@ export class AuthService {
    */
   private loginPopup() {
     console.log('Auth:  Get token via login popup');
-    this.reloadNeeded = true;
+    this.reloadNeeded = this.hasTokenExpired();
+    this.redirectService.saveCurrentRoute();
 
     const tokenRequest: Msal.AuthenticationParameters = { scopes: environment.securityScopes };
     this.clientApplication.loginPopup(tokenRequest)
@@ -214,5 +208,18 @@ export class AuthService {
         console.log('Auth: Login popup failed.', err);
         this.router.navigate(['/logout'], { queryParams: { errorMessage: err.errorMessage } });
       });
+  }
+
+  /**
+   * Used after loging popup is shown.  It determines if we should reload the screen.
+   * this should only be done if the token expired or doesn't exist in the first place.
+   */
+  private reloadIfNecessary() {
+    // Navigate to login page which will redirect back to saved route.
+    if (this.reloadNeeded) {
+      this.reloadNeeded = false;
+      this.redirectService.navigateToSavedRoute(true);
+      this.redirectService.clearSavedRoute();
+    }
   }
 }

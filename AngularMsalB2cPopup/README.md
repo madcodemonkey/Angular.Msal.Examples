@@ -30,7 +30,7 @@ Msal.js has a configuration object and [Microsoft has define the properties on i
       navigateToLoginRequestUrl: false,  // Only used for redirect flows
       validateAuthority: false,
       postLogoutRedirectUri: window.location.origin + '/logout', 
-      redirectUri: window.location.origin + '/login' 
+      redirectUri: window.location.origin 
     },
     cache: {
       cacheLocation: 'localStorage',
